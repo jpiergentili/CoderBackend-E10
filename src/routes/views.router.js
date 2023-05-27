@@ -3,9 +3,13 @@ import productModel from '../models/product.models.js'
 
 const router = Router()
 
+const auth = (req, res, next) => {
+  if (req.session.user) return next()
+  return res.send('Error de autenticación')
+}
 
 // Ruta para la vista Home donde se van a mostrar todos los productos
-router.get('/', async (req, res) => {
+router.get('/', auth ,async (req, res) => {
   try{
     let page = parseInt(req.query.page);
     let limit = parseInt(req.query.limit);
@@ -25,7 +29,7 @@ router.get('/', async (req, res) => {
       queryFilter.title = { $regex: query, $options: 'i' };
     }
     const products = await productModel.paginate(queryFilter, { page, limit, sort: querySort, lean: true });
-    console.log(products);
+/*     console.log(products); */
     products.prevLink = products.hasPrevPage ? `/products?page=${products.prevPage}` : ''
     products.nextLink = products.hasNextPage ? `/products?page=${products.nextPage}` : ''
     res.render('products', { products }) 
