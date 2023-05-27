@@ -15,9 +15,12 @@ router.get('/', auth ,async (req, res) => {
     let limit = parseInt(req.query.limit);
     let sort = req.query.sort;
     let query = req.query.query;
+    const user = req.session.user
+    const isAdmin = user.role == 'admin' ? true : false
 
     let querySort = {};
     let queryFilter = {};
+
 
     if (!page) page = 1;
     if (!limit) limit = 10;
@@ -32,7 +35,7 @@ router.get('/', auth ,async (req, res) => {
 /*     console.log(products); */
     products.prevLink = products.hasPrevPage ? `/products?page=${products.prevPage}` : ''
     products.nextLink = products.hasNextPage ? `/products?page=${products.nextPage}` : ''
-    res.render('products', { products }) 
+    res.render('products', { products, user, isAdmin }) 
   } catch (error){
     console.log('Error al cargar los productos:', error);
     res.status(500).json({ error: 'Error al cargar los productos' });

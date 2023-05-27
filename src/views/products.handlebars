@@ -8,30 +8,34 @@
                 <th>Price</th>
                 <th>Code</th>
                 <th>Stock</th>
+                {{#if isAdmin}}
                 <th></th>
                 <th></th>
+                {{/if}}
             </tr>
         </thead>
         <tbody>
             {{#each products.docs}}
-                <tr>
-                    <td><a href="/products/{{this._id}}">{{this.title}}</a></td>
-                    <td>{{this.description}}</td>
-                    <td>{{this.price}}</td>
-                    <td>{{this.code}}</td>
-                    <td>{{this.stock}}</td>
-                    <td><a href="/products/update/{{this._id}}"><i class="bi bi-pencil-square"></i></a></td>
-                    <td><a href="#" onclick="deleteProduct('{{this._id}}')"><i class="bi bi-trash"></i></a></td>
-                </tr>
+            <tr>
+                <td><a href="/products/{{this._id}}">{{this.title}}</a></td>
+                <td>{{this.description}}</td>
+                <td>{{this.price}}</td>
+                <td>{{this.code}}</td>
+                <td>{{this.stock}}</td>
+{{#if ../isAdmin}}
+    <td><a href="/products/update/{{this._id}}"><i class="bi bi-pencil-square"></i></a></td>
+    <td><a href="#" onclick="deleteProduct('{{this._id}}')"><i class="bi bi-trash"></i></a></td>
+{{/if}}
+            </tr>
             {{/each}}
         </tbody>
     </table>
     <div>
         {{#if products.hasPrevPage}}
-            <a href="{{products.prevLink}}">Anterior</a>
+        <a href="{{products.prevLink}}">Anterior</a>
         {{/if}}
         {{#if products.hasNextPage}}
-            <a href="{{products.nextLink}}">Siguiente</a>
+        <a href="{{products.nextLink}}">Siguiente</a>
         {{/if}}
     </div>
 </div>
@@ -44,15 +48,15 @@
                 'Content-Type': 'application/json'
             }
         })
-        .then(response => {
-            if (response.ok) {
-                window.location.reload(); // Recargar la página después de eliminar el producto
-            } else {
-                throw new Error('Error al eliminar el producto');
-            }
-        })
-        .catch(error => {
-            console.log(error);
-        });
+            .then(response => {
+                if (response.ok) {
+                    window.location.reload(); // Recargar la página después de eliminar el producto
+                } else {
+                    throw new Error('Error al eliminar el producto');
+                }
+            })
+            .catch(error => {
+                console.log(error);
+            });
     }
 </script>
