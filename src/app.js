@@ -3,7 +3,8 @@ import mongoose from 'mongoose'
 import handlebars from 'express-handlebars'
 import viewsRouter from './routes/views.router.js'
 import cartsRouter from './routes/carts.router.js'
-import productModel from './models/products.models.js'
+import cartRouter from './routes/cart.router.js'
+import cartModel from './models/cart.models.js'
 
 const uri = 'mongodb+srv://javypier1:Q1w2e3r4@jp-backend-coder01.bavi18s.mongodb.net/'
 
@@ -19,8 +20,9 @@ app.set('view engine', 'handlebars')
 //configuracion de la carpeta publica
 app.use(express.static('./src/public'))
 
+app.use('/api/carts', cartsRouter);
 app.use('/products', viewsRouter);
-app.use('/carts', cartsRouter);
+app.use('/carts', cartRouter);
 
 mongoose.set('strictQuery', false)
 
@@ -29,7 +31,7 @@ try{
         dbName: 'entrega9backend'
     })
     console.log('DB connected!')
-
+    
 } catch (error) {
     console.log("No se pudo conectar con la base de datos!!");
 }

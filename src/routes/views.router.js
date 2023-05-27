@@ -1,5 +1,5 @@
 import { Router } from "express";
-import productModel from '../models/products.models.js'
+import productModel from '../models/product.models.js'
 
 const router = Router()
 
@@ -7,26 +7,57 @@ const router = Router()
 // Ruta para la vista Home donde se van a mostrar todos los productos
 router.get('/', async (req, res) => {
   try{
-    let page = parseInt(req.query.page)
-    if (!page) page = 1  
-    const products = await productModel.paginate({}, {page, limit: 5, lean: true})
-    res.render('products', {
-      title: 'Lista de Productos',
-      productos: products.docs,
-      style: 'index.css'
-    })    
+    let page = parseInt(req.query.page);
+    let limit = parseInt(req.query.limit);
+    let sort = req.query.sort;
+    let query = req.query.query;
+
+    let querySort = {};
+    let queryFilter = {};
+
+    if (!page) page = 1;
+    if (!limit) limit = 10;
+
+    if (sort === 'asc' || sort === 'desc') {
+      querySort.price = sort === 'asc' ? 'asc' : 'desc';
+    }
+    if (query) {
+      queryFilter.title = { $regex: query, $options: 'i' };
+    }
+    const products = await productModel.paginate(queryFilter, { page, limit, sort: querySort, lean: true });
+    console.log(products);
+    products.prevLink = products.hasPrevPage ? `/products?page=${products.prevPage}` : ''
+    products.nextLink = products.hasNextPage ? `/products?page=${products.nextPage}` : ''
+    res.render('products', { products }) 
   } catch (error){
     console.log('Error al cargar los productos:', error);
     res.status(500).json({ error: 'Error al cargar los productos' });
   }
+})
 
+
+router.get('/create', (req, res) => {
+  res.render('createProduct', {})
+})
+
+router.get('/:id', async (req, res) => {
+  const id = req.params.id
+  const product = await productModel.findOne({ _id: id }).lean().exec()
+  console.log(product);
+  res.render('productForId', { product })
+})
+
+router.get('/update/:id', async (req, res) => {
+  const id = req.params.id
+  const product = await productModel.findOne({ _id: id }).lean().exec()
+  res.render('updateProduct', { product })
 })
 
 // Ruta para crear un nuevo producto
 router.post('/', async (req, res) => {
   try {
     const newProduct = await productModel.create(req.body);
-    res.status(201).json(newProduct);
+    res.redirect(`/products/${newProduct._id}`)
   } catch (error) {
     console.log('Error al crear el producto:', error);
     res.status(500).json({ error: 'Error al crear el producto' });
@@ -48,7 +79,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // Ruta para eliminar un producto existente
-router.delete('/:id', async (req, res) => {
+router.delete('/delete/:id', async (req, res) => {
   try {
     await productModel.findByIdAndRemove(req.params.id);
     res.sendStatus(204);

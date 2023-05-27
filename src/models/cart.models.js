@@ -1,16 +1,19 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
+import mongoosePaginate from "mongoose-paginate-v2"
 
 const cartSchema = mongoose.Schema({
-    title: String,
-    description: String,
-    difficulty: Number,
-    proffessor: String    
-})
+  first_name: String,
+  last_name: String,
+  cartProducts: [
+    { product: { type: mongoose.Schema.Types.ObjectId, ref: 'product' }, qty: Number },
+  ],
+});
 
-/* studentSchema.pre('findOne', function(){
-    this.populate('courses.course')
-}) */
+cartSchema.pre('findOne', function () {
+  this.populate('cartProducts.product');
+});
 
-const cartModel = mongoose.model('cart', cartSchema)
+cartSchema.plugin(mongoosePaginate)
+const cartModel = mongoose.model('cart', cartSchema);
 
-export default cartModel
+export default cartModel;
